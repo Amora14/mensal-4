@@ -61,7 +61,7 @@ jobs:
         PROJECT_ID: festive-post-461507-v9
       run: |
         # MUDANÇA CRÍTICA: Usando a mesma tag única para consistência
-        docker build -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/frontendatt:${{ steps.docker_tag.outputs.tag }} ./front-residencial
+        docker build -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/frontendatt:${{ steps.docker_tag.outputs.tag }} ./frontend-cofig
         docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/frontendatt:${{ steps.docker_tag.outputs.tag }}
 
     - name: Configurar kubeconfig para GKE
