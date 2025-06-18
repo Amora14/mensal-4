@@ -1,0 +1,78 @@
+name: Docker Build & GKE Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: integrador
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - name: Checkout código
+      uses: actions/checkout@v3
+
+    - name: Autenticar no Google Cloud
+      id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        workload_identity_provider: 'projects/771557064348/locations/global/workloadIdentityPools/github-pool/providers/github-provider'
+        service_account: 'github-actions-sa@festive-post-461507-v9.iam.gserviceaccount.com'
+
+    - name: Configurar Docker para GCR
+      run: |
+        gcloud auth configure-docker us-central1-docker.pkg.dev 
+
+    - name: Build e Push Imagem Backend
+      env:
+        PROJECT_ID: festive-post-461507-v9
+      run: |
+        docker build -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/backendatt:latest ./backend/Sistema-inte-main
+        docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/backendatt:latest
+
+    - name: Build e Push Imagem Frontend
+      env:
+        PROJECT_ID: festive-post-461507-v9
+      run: |
+        docker build -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/frontendatt:latest ./frontend/front-residencial
+        docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/frontendatt:latest
+
+    - name: Configurar kubeconfig para GKE
+      uses: 'google-github-actions/get-gke-credentials@v1'
+      with:
+        cluster_name: 'cluster-1'
+        location: 'us-central1-a'
+        project_id: 'festive-post-461507-v9'
+
+    - name: Deploy Backend no Kubernetes
+      run: |
+        sed -i "s|mirovisk/backendatt:latest|us-central1-docker.pkg.dev/festive-post-461507-v9/cluster-1/backendatt:latest|g" ./backend-config/deployment.yaml
+        kubectl apply -f ./backend-config/
+
+    - name: Deploy Database Config no Kubernetes
+      run: |
+        kubectl apply -f ./database-config/
+
+    - name: Deploy Frontend no Kubernetes
+      run: |
+        sed -i "s|mirovisk/frontendatt:latest|us-central1-docker.pkg.dev/festive-post-461507-v9/cluster-1/frontendatt:latest|g" ./frontend-config/deployment.yaml
+        kubectl apply -f ./frontend-config/
