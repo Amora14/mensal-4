@@ -53,8 +53,8 @@ jobs:
         PROJECT_ID: festive-post-461507-v9
       run: |
         # MUDANÇA CRÍTICA: Usando a tag única gerada no passo anterior
-        docker build -t us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/backendatt:latest ./Sistema-inte-main
-        docker push us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/cluster-1/backendatt:latest
+        docker build -t mirovisk/backendatt:latest ./Sistema-inte-main
+        docker push mirovisk/backendatt:latest
 
     - name: Build e Push Imagem Frontend
       env:
