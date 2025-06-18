@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: backend
+  labels:
+    app: backend
+    tier: application
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: backend
+        tier: application
+    spec:
+      containers:
+      - name: backend
+        image: mirovisk/backendatt:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5000
+          name: http
+        
+       
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 5
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 5000
+          initialDelaySeconds: 20
+          periodSeconds: 5
+          timeoutSeconds: 5
+        
+       
+        env:
+       
+        - name: K8S_DB_SERVICE_HOST
+          value: "mysql-service.database.svc.cluster.local"
+        
+        - name: K8S_DB_SERVICE_PORT
+          value: "3306"
+        
+        - name: K8S_DB_NAME_VALUE
+          valueFrom:
+            secretKeyRef:
+              name: secret
+              key: mysql-database        
+       
+        - name: DATABASE_URL
+          value: "jdbc:mysql://$(K8S_DB_SERVICE_HOST):$(K8S_DB_SERVICE_PORT)/$(K8S_DB_NAME_VALUE)?useSSL=false&allowPublicKeyRetrieval=true"
+        
+        - name: DATABASE_USERNAME
+          value: "root"
+        
+        - name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: secret
+              key: mysql-root-password
+        
+        - name: FRONTEND_URL
+          value: "http://frontend-service.frontend.svc.cluster.local:80"
+        
+        - name: APP_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: backend-config
+              key: APP_ENV
+        
+        resources:
+          requests:
+            cpu: "1"    
+            memory: "1Gi"
+          limits:
+            cpu: "1"
+            memory: "2Gi"

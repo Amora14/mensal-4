@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: database
+data:
+  MYSQL_DATABASE: "integrador"
+  MYSQL_TCP_PORT: "3306"
+  MYSQL_INITDB_SKIP_TZINFO: "1"
+  TZ: "America/Sao_Paulo"
+  
