@@ -5,10 +5,10 @@ services:
     image: mysql:8.0 
     container_name: mysql-db
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # 'senha3078'
-      MYSQL_DATABASE: ${MYSQL_DATABASE_NAME}    # 'integrador'
-      MYSQL_USER: ${MYSQL_USERNAME}             # 'root'
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}         #  'senha3078'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD} # Será 'senha3078'
+      MYSQL_DATABASE: ${MYSQL_DATABASE_NAME}    # Será 'integrador'
+      MYSQL_USER: ${MYSQL_USERNAME}             # Será 'root'
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}         # Será 'senha3078'
     ports:
       - "3306:3306" 
     volumes:
@@ -19,11 +19,11 @@ services:
 
   backend:
     build:
-      context: ./sistema-inte-main # Caminho para o diretorio do seu Dockerfile do back-end
+      context: ./sistema-inte-main # Caminho para o diretório do seu Dockerfile do back-end
       dockerfile: Dockerfile
       args:
 
-        DATABASE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE_NAME} # 'db'  o nome do serviço MySQL no Docker Compose
+        DATABASE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE_NAME} # 'db' é o nome do serviço MySQL no Docker Compose
         DATABASE_USERNAME: ${MYSQL_USERNAME}
         DATABASE_PASSWORD: ${MYSQL_PASSWORD}
     container_name: backend-app
@@ -41,7 +41,7 @@ services:
 
   frontend:
     build:
-      context: ./front-residencial # Caminho para o diretorio do seu Dockerfile do front-end
+      context: ./front-residencial # Caminho para o diretório do seu Dockerfile do front-end
       dockerfile: Dockerfile
     container_name: frontend-app
     ports:
