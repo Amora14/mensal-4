@@ -48,7 +48,7 @@ O Docker empacota a aplicação do frontend e backend para criar as imagens.
 DockerHub: usado como repositório das imagens.
 
 
-##☸️ Kubernetes
+## ☸️ Kubernetes
 O Kubernetes entra em cena para automatizar e gerenciar a implantação da nossa aplicação em um ambiente de produção. Ele garante que o backend, o frontend e o banco de dados funcionem de maneira coesa e escalável.
 
 Orquestração de Contêineres: Gerencia os contêineres Docker da API (Java) e do App (Angular).
